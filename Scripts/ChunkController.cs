@@ -10,7 +10,12 @@ namespace Game
         {
             meshInstance = GetChild<MeshInstance>(0);
 
-            var mesh = Voxel.CreateMesh();
+            HttpClient.Get(Constant.GetCloudfrontUri("maps/map_0000.yml"), HttpClient.Deserializer.FromYaml<Map>(OnMapFetched));
+        }
+
+        private void OnMapFetched(Map map)
+        {
+            var mesh = Voxel.CreateMesh(map);
 
             meshInstance.Mesh = mesh;
         }

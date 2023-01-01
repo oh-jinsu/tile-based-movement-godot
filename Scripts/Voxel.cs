@@ -26,19 +26,7 @@ namespace Game
             TOP, BOTTOM, LEFT, RIGHT, FRONT, BACK,
         };
 
-        public static (Vector3, Vector3, Vector3, Vector3) GetVertices(int[] face, float x, float y, float z)
-        {
-            var position = new Vector3(x, y, z);
-
-            var a = VERTICES[face[0]] + position;
-            var b = VERTICES[face[1]] + position;
-            var c = VERTICES[face[2]] + position;
-            var d = VERTICES[face[3]] + position;
-
-            return (a, b, c, d);
-        }
-
-        public static Mesh CreateMesh()
+        public static Mesh CreateMesh(Map map)
         {
             var surfaceTool = new SurfaceTool();
 
@@ -46,29 +34,25 @@ namespace Game
 
             surfaceTool.Begin(Mesh.PrimitiveType.Triangles);
 
-            for (int y = 0; y < 1; y++)
+            foreach (var pair in map.tiles)
             {
-                for (int x = 0; x < 32; x++)
+                var position = pair.Key;
+
+                foreach (var face in FACES)
                 {
-                    for (int z = 0; z < 32; z++)
-                    {
-                        foreach (var face in FACES)
-                        {
-                            var (a, b, c, d) = GetVertices(face, x, y, z);
+                    var (a, b, c, d) = GetVertices(face, position);
 
-                            surfaceTool.AddTriangleFan(new Vector3[] {
-                                a,
-                                b,
-                                c,
-                            });
+                    surfaceTool.AddTriangleFan(new Vector3[] {
+                        a,
+                        b,
+                        c,
+                    });
 
-                            surfaceTool.AddTriangleFan(new Vector3[] {
-                                a,
-                                c,
-                                d,
-                            });
-                        }
-                    }
+                    surfaceTool.AddTriangleFan(new Vector3[] {
+                        a,
+                        c,
+                        d,
+                    });
                 }
             }
 
@@ -77,6 +61,16 @@ namespace Game
             surfaceTool.Commit(mesh);
 
             return mesh;
+        }
+
+        public static (Vector3, Vector3, Vector3, Vector3) GetVertices(int[] face, Vector3 position)
+        {
+            var a = VERTICES[face[0]] + position;
+            var b = VERTICES[face[1]] + position;
+            var c = VERTICES[face[2]] + position;
+            var d = VERTICES[face[3]] + position;
+
+            return (a, b, c, d);
         }
     }
 }

@@ -1,8 +1,6 @@
-using Godot;
-
 namespace Game
 {
-    public class Application : Node
+    public class Application : Singleton
     {
         public const string NODE_PATH = "/root/Application";
 

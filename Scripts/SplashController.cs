@@ -1,5 +1,3 @@
-using Godot;
-
 namespace Game
 {
     public class SplashController : BaseNode

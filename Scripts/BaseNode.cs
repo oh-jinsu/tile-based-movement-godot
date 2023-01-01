@@ -17,6 +17,14 @@ namespace Game
                 return GetNode<Navigator>(Navigator.NODE_PATH);
             }
         }
+
+        protected HttpClient HttpClient
+        {
+            get
+            {
+                return GetNode<HttpClient>(HttpClient.NODE_PATH);
+            }
+        }
     }
 
 }
