@@ -10,7 +10,7 @@ config_version=4
 
 [application]
 
-config/name="Goguryeo"
+config/name="EastOnline"
 run/main_scene="res://Scenes/SplashScene.tscn"
 config/icon="res://icon.png"
 
@@ -26,7 +26,7 @@ common/drop_mouse_on_gui_input_disabled=true
 
 [mono]
 
-project/assembly_name="Goguryeo"
+project/assembly_name="EastOnline"
 
 [physics]
 
