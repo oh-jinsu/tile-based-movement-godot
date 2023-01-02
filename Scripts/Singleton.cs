@@ -2,7 +2,7 @@ using Godot;
 
 namespace Game
 {
-    public abstract class Singleton : Node
+    public abstract class Singleton : BaseNode
     {
 
     }

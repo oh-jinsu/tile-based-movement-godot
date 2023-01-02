@@ -2,6 +2,8 @@ using Godot;
 
 namespace Game
 {
+    using static Constant;
+
     public class ChunkController : BaseNode
     {
         private MeshInstance meshInstance;
@@ -10,7 +12,7 @@ namespace Game
         {
             meshInstance = GetChild<MeshInstance>(0);
 
-            HttpClient.Get(Constant.GetCloudfrontUri("maps/map_0000.yml"), HttpClient.Deserializer.FromYaml<Map>(OnMapFetched));
+            HttpClient.Get(CloudfrontUri("maps/map_0000.yml"), Deserializer.FromYaml<Map, Model.Exception>(OnMapFetched));
         }
 
         private void OnMapFetched(Map map)

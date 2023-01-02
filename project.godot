@@ -12,6 +12,9 @@ config_version=4
 
 config/name="EastOnline"
 run/main_scene="res://Scenes/SplashScene.tscn"
+boot_splash/show_image=false
+boot_splash/use_filter=false
+boot_splash/bg_color=Color( 0, 0, 0, 1 )
 config/icon="res://icon.png"
 
 [autoload]
@@ -19,6 +22,15 @@ config/icon="res://icon.png"
 Application="*res://Scripts/Application.cs"
 Navigator="*res://Scripts/Navigator.cs"
 HttpClient="*res://Scripts/HttpClient.cs"
+WindowController="*res://Scripts/WindowController.cs"
+
+[display]
+
+window/size/width=1280
+window/size/height=720
+window/dpi/allow_hidpi=true
+window/stretch/mode="viewport"
+window/stretch/aspect="expand"
 
 [gui]
 

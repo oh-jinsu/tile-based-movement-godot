@@ -1,5 +1,59 @@
-[gd_scene format=2]
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://Themes/Fonts/TitleFont.tres" type="DynamicFont" id=1]
+[ext_resource path="res://Themes/Fonts/BodyFont.tres" type="DynamicFont" id=2]
+[ext_resource path="res://Scripts/CreationSceneController.cs" type="Script" id=3]
 
 [node name="MarginContainer" type="MarginContainer"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+margin_left = 16.0
+margin_top = 16.0
+margin_right = -16.0
+margin_bottom = -16.0
+script = ExtResource( 3 )
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+margin_right = 1248.0
+margin_bottom = 688.0
+
+[node name="Label" type="Label" parent="VBoxContainer"]
+margin_top = 118.0
+margin_right = 1248.0
+margin_bottom = 223.0
+size_flags_vertical = 6
+custom_fonts/font = ExtResource( 1 )
+text = "이스트 온라인"
+align = 1
+valign = 1
+
+[node name="Control" type="Control" parent="VBoxContainer"]
+margin_top = 346.0
+margin_right = 1248.0
+margin_bottom = 688.0
+size_flags_vertical = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/Control"]
+anchor_left = 0.5
+anchor_right = 0.5
+margin_left = -100.0
+margin_right = 100.0
+margin_bottom = 112.0
+custom_constants/separation = 16
+
+[node name="LineEdit" type="LineEdit" parent="VBoxContainer/Control/VBoxContainer"]
+margin_right = 200.0
+margin_bottom = 48.0
+size_flags_vertical = 3
+custom_fonts/font = ExtResource( 2 )
+align = 1
+max_length = 8
+placeholder_text = "이름을 입력하세요."
+
+[node name="Button" type="Button" parent="VBoxContainer/Control/VBoxContainer"]
+margin_top = 64.0
+margin_right = 200.0
+margin_bottom = 112.0
+size_flags_vertical = 3
+custom_fonts/font = ExtResource( 2 )
+text = "게임 시작"

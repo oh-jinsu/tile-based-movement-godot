@@ -2,25 +2,28 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace Game
 {
+    public abstract class HttpResponse { }
+
     public class HttpClient : Singleton
     {
         public const string NODE_PATH = "/root/HttpClient";
 
         private const int POLL_INTERVAL = 1;
 
-        public delegate void OnResponse(string text);
+        public delegate void OnResponse(bool ok, string result);
 
-        private struct Request
+        private struct RequestParams
         {
             public int serial;
 
             public Uri uri;
+
+            public object body;
 
             public OnResponse onResponse;
         }
@@ -29,59 +32,155 @@ namespace Game
 
         private Dictionary<int, Thread> threads = new Dictionary<int, Thread>();
 
-        private Dictionary<int, Request> requests = new Dictionary<int, Request>();
+        private Dictionary<int, RequestParams> requestParams = new Dictionary<int, RequestParams>();
 
         private Mutex mutex = new Mutex();
 
+        public void Get(Uri uri, OnResponse onResponse = null)
+        {
+            StartTask(nameof(GetTask), uri, null, onResponse);
+        }
+
         private async void GetTask(int serial)
         {
+            try
+            {
+                var request = PopRequest(serial);
+
+                var client = ConnectClient(request.uri.host);
+
+                string[] headers = { "User-Agent: Pirulo/1.0 (Godot)", "Accept: */*" };
+
+                var (ok, result) = await RequestWith(client, HTTPClient.Method.Get, request.uri.endpoint, headers);
+
+                request.onResponse?.Invoke(ok, result);
+            }
+            catch (Exception e)
+            {
+                GD.Print(e);
+            }
+            finally
+            {
+                threads.Remove(serial);
+            }
+        }
+
+        public void Post(Uri uri, object body, OnResponse onResponse = null)
+        {
+            StartTask(nameof(PostTask), uri, body, onResponse);
+        }
+
+        private async void PostTask(int serial)
+        {
+            try
+            {
+                var request = PopRequest(serial);
+
+                var client = ConnectClient(request.uri.host);
+
+                string[] headers = { "User-Agent: Pirulo/1.0 (Godot)", "Accept: */*", "Content-Type: application/json;charset=utf-8" };
+
+                var (ok, result) = await RequestWith(client, HTTPClient.Method.Post, request.uri.endpoint, headers, request.body);
+
+                request.onResponse?.Invoke(ok, result);
+            }
+            catch (Exception e)
+            {
+                GD.Print(e);
+            }
+            finally
+            {
+                threads.Remove(serial);
+            }
+        }
+
+        private void StartTask(string method, Uri uri, object body, OnResponse onResponse)
+        {
+            var serial = NewSerial();
+
+            var reservation = new RequestParams
+            {
+                serial = serial,
+                uri = uri,
+                body = body,
+                onResponse = onResponse,
+            };
+
             mutex.Lock();
 
-            var request = requests[serial];
-
-            var ok = requests.Remove(serial);
+            requestParams[serial] = reservation;
 
             mutex.Unlock();
 
+            var thread = new Thread();
+
+            threads[serial] = thread;
+
+            thread.Start(this, method, serial);
+        }
+
+        public int NewSerial()
+        {
+            return serial++;
+        }
+
+        private RequestParams PopRequest(int serial)
+        {
+            mutex.Lock();
+
+            var request = requestParams[serial];
+
+            var ok = requestParams.Remove(serial);
+
             if (!ok)
             {
-                return;
+                throw new System.Exception("Request missed");
             }
 
+            mutex.Unlock();
+
+            return request;
+        }
+
+        private static HTTPClient ConnectClient(string host)
+        {
             var client = new HTTPClient();
 
-            var error = client.ConnectToHost(request.uri.host);
+            var error = client.ConnectToHost(host);
 
             if (error != Error.Ok)
             {
-                throw new Exception("Failed to connect to host");
+                throw new Exception("Failed to connect to host: " + error);
             }
 
             while (client.GetStatus() == HTTPClient.Status.Connecting || client.GetStatus() == HTTPClient.Status.Resolving)
             {
-                client.Poll();
-
                 OS.DelayMsec(POLL_INTERVAL);
+
+                client.Poll();
             }
 
             if (client.GetStatus() != HTTPClient.Status.Connected)
             {
-                throw new Exception("Failed to connect to host");
+                throw new Exception("Failed to connect to host: " + client.GetStatus());
             }
 
-            string[] headers = { "User-Agent: Pirulo/1.0 (Godot)", "Accept: */*" };
+            return client;
+        }
 
-            error = client.Request(HTTPClient.Method.Get, request.uri.endpoint, headers);
+        private async Task<(bool, string)> RequestWith(HTTPClient client, HTTPClient.Method method, string endpoint, string[] headers, object body = null)
+        {
+            var json = body != null ? JsonConvert.SerializeObject(body) : "";
+
+            var error = client.Request(method, endpoint, headers, json);
 
             if (error != Error.Ok)
             {
-                throw new Exception("Failed to request to host");
+                throw new Exception("Failed to request");
             }
 
             while (client.GetStatus() == HTTPClient.Status.Requesting)
             {
-                client.Poll();
-
                 if (OS.HasFeature("web"))
                 {
                     await ToSignal(Engine.GetMainLoop(), "idle_frame");
@@ -90,25 +189,24 @@ namespace Game
                 {
                     OS.DelayMsec(POLL_INTERVAL);
                 }
+
+                client.Poll();
             }
 
             if (client.GetStatus() != HTTPClient.Status.Body && client.GetStatus() != HTTPClient.Status.Connected)
             {
-                return;
+                return (false, null);
             }
 
             if (!client.HasResponse())
             {
-                return;
+                return (false, null);
             }
-
 
             var buffer = new List<byte>();
 
             while (client.GetStatus() == HTTPClient.Status.Body)
             {
-                client.Poll();
-
                 var chunk = client.ReadResponseBodyChunk();
 
                 if (chunk.Length == 0)
@@ -119,62 +217,13 @@ namespace Game
                 {
                     buffer.AddRange(chunk);
                 }
+
+                client.Poll();
             }
 
-            var text = Encoding.UTF8.GetString(buffer.ToArray());
+            var result = Encoding.UTF8.GetString(buffer.ToArray());
 
-            request.onResponse?.Invoke(text);
-
-            threads.Remove(serial);
-        }
-
-        public void Get(Uri uri, OnResponse onResponse = null)
-        {
-            var serial = ++this.serial;
-
-            var request = new Request
-            {
-                serial = serial,
-                uri = uri,
-                onResponse = onResponse,
-            };
-
-            mutex.Lock();
-
-            requests[serial] = request;
-
-            mutex.Unlock();
-
-            var thread = new Thread();
-
-            threads[serial] = thread;
-
-            thread.Start(this, nameof(GetTask), serial);
-        }
-
-        public static class Deserializer
-        {
-            public delegate void OnResponse<T>(T model);
-
-            private static readonly IDeserializer deserializer = new DeserializerBuilder()
-                .WithNamingConvention(CamelCaseNamingConvention.Instance)
-                .Build();
-
-            public static HttpClient.OnResponse FromYaml<T>(OnResponse<T> onResponse)
-            {
-                return (text) =>
-                {
-                    onResponse(deserializer.Deserialize<T>(text));
-                };
-            }
-
-            public static HttpClient.OnResponse FromJson<T>(OnResponse<T> onResponse)
-            {
-                return (text) =>
-                {
-                    onResponse(JsonConvert.DeserializeObject<T>(text));
-                };
-            }
+            return (client.GetResponseCode().ToString().StartsWith("2"), result);
         }
     }
 }

@@ -4,16 +4,9 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace Game
 {
-    public interface IAuthRepository
+    public class AuthRepository
     {
-        string GetAccessToken();
-
-        void SaveAccessToken(string accessToken);
-    }
-
-    public class AuthRepository : IAuthRepository
-    {
-        const string PATH = "user://auth.yml";
+        private const string FILE_PATH = "user://auth.yml";
 
         private readonly File file = new File();
 
@@ -29,7 +22,7 @@ namespace Game
 
         public AuthRepository()
         {
-            if (!file.FileExists(PATH))
+            if (!file.FileExists(FILE_PATH))
             {
                 CreateFile();
             }
@@ -45,6 +38,13 @@ namespace Game
         public void SaveAccessToken(string accessToken)
         {
             authModel.accessToken = accessToken;
+
+            WriteFile(authModel);
+        }
+
+        public void DeleteAccessToken()
+        {
+            authModel.accessToken = null;
 
             WriteFile(authModel);
         }
@@ -80,7 +80,7 @@ namespace Game
 
         private void OpenFile(File.ModeFlags flag)
         {
-            var error = file.Open(PATH, flag);
+            var error = file.Open(FILE_PATH, flag);
 
             if (error != Error.Ok)
             {

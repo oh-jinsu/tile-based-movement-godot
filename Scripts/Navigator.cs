@@ -7,13 +7,21 @@ namespace Game
     {
         public const string NODE_PATH = "/root/Navigator";
 
-        public Node CurrentScene { get; private set; }
+        private MutableObservable<Node> currentScene = new();
+
+        public Observable<Node> CurrentScene
+        {
+            get
+            {
+                return currentScene;
+            }
+        }
 
         public override void _Ready()
         {
             var root = GetTree().Root;
 
-            CurrentScene = root.GetChild(root.GetChildCount() - 1);
+            currentScene.Value = root.GetChild(root.GetChildCount() - 1);
         }
 
         public void GoTo(Scene scene)
@@ -23,17 +31,17 @@ namespace Game
 
         private void DeferredGoTo(Scene scene)
         {
-            CurrentScene.Free();
+            currentScene.Value.Free();
 
             var path = GetPath(scene);
 
             var nextScene = (PackedScene)Load(path);
 
-            CurrentScene = nextScene.Instance();
+            currentScene.Value = nextScene.Instance();
 
-            GetTree().Root.AddChild(CurrentScene);
+            GetTree().Root.AddChild(currentScene.Value);
 
-            GetTree().CurrentScene = CurrentScene;
+            GetTree().CurrentScene = currentScene.Value;
         }
 
         private static string GetPath(Scene scene)

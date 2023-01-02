@@ -2,6 +2,11 @@ namespace Game
 {
     public class BaseNode : Godot.Node
     {
+        static BaseNode Of(Godot.Node node)
+        {
+            return (BaseNode)node;
+        }
+
         protected Application Application
         {
             get
@@ -23,6 +28,14 @@ namespace Game
             get
             {
                 return GetNode<HttpClient>(HttpClient.NODE_PATH);
+            }
+        }
+
+        protected WindowController WindowController
+        {
+            get
+            {
+                return GetNode<WindowController>(WindowController.NODE_PATH);
             }
         }
     }
