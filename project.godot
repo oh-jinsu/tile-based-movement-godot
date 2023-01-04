@@ -23,6 +23,8 @@ Application="*res://Scripts/Application.cs"
 Navigator="*res://Scripts/Navigator.cs"
 HttpClient="*res://Scripts/HttpClient.cs"
 WindowController="*res://Scripts/WindowController.cs"
+SocketClient="*res://Scripts/SocketClient.cs"
+ThreadPool="*res://Scripts/ThreadPool.cs"
 
 [display]
 

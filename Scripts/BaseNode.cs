@@ -31,6 +31,22 @@ namespace Game
             }
         }
 
+        protected SocketClient SocketClient
+        {
+            get
+            {
+                return GetNode<SocketClient>(SocketClient.NODE_PATH);
+            }
+        }
+
+        protected ThreadPool ThreadPool
+        {
+            get
+            {
+                return GetNode<ThreadPool>(ThreadPool.NODE_PATH);
+            }
+        }
+
         protected WindowController WindowController
         {
             get

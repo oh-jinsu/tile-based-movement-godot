@@ -4,7 +4,7 @@ namespace Game
     {
         public override void _Ready()
         {
-            Reset();
+            // Reset();
 
             var accessToken = Application.AuthRepository.GetAccessToken();
 
@@ -14,8 +14,13 @@ namespace Game
             }
             else
             {
-                Navigator.GoTo(Scene.Game);
+                StartGame();
             }
+        }
+
+        private void StartGame()
+        {
+            Navigator.GoTo(Scene.Game);
         }
 
         private void Reset()

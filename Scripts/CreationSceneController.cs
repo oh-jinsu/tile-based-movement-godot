@@ -73,12 +73,30 @@ namespace Game
         {
             pending.Value = true;
 
+            ThreadPool.Spawn(SaveAuth);
+        }
+
+        private async void SaveAuth()
+        {
             var request = new Model.SaveAuthRequest
             {
                 username = username.Value
             };
 
-            HttpClient.Post(ApiUri("auth"), request, Deserializer.FromJson<Model.SaveAuthResponse>(OnSaveAuthSuccessResponse, OnSaveAuthFailureResponse));
+            var (ok, response) = await HttpClient.PostAsync(ApiUri("auth"), request);
+
+            if (!ok)
+            {
+                var exception = Deserializer.FromJson<Model.Exception>(response);
+
+                OnSaveAuthFailureResponse(exception);
+
+                return;
+            }
+
+            var model = Deserializer.FromJson<Model.SaveAuthResponse>(response);
+
+            OnSaveAuthSuccessResponse(model);
         }
 
         private void OnSaveAuthSuccessResponse(Model.SaveAuthResponse response)

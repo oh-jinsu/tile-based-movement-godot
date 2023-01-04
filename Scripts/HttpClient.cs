@@ -17,129 +17,22 @@ namespace Game
 
         public delegate void OnResponse(bool ok, string result);
 
-        private struct RequestParams
+        public async Task<(bool, string)> GetAsync(Uri uri)
         {
-            public int serial;
+            var client = ConnectClient(uri.host);
 
-            public Uri uri;
+            string[] headers = { "User-Agent: Pirulo/1.0 (Godot)", "Accept: */*" };
 
-            public object body;
-
-            public OnResponse onResponse;
+            return await RequestAsyc(client, HTTPClient.Method.Get, uri.endpoint, headers);
         }
 
-        private int serial = 0;
-
-        private Dictionary<int, Thread> threads = new Dictionary<int, Thread>();
-
-        private Dictionary<int, RequestParams> requestParams = new Dictionary<int, RequestParams>();
-
-        private Mutex mutex = new Mutex();
-
-        public void Get(Uri uri, OnResponse onResponse = null)
+        public async Task<(bool, string)> PostAsync(Uri uri, object body)
         {
-            StartTask(nameof(GetTask), uri, null, onResponse);
-        }
+            var client = ConnectClient(uri.host);
 
-        private async void GetTask(int serial)
-        {
-            try
-            {
-                var request = PopRequest(serial);
+            string[] headers = { "User-Agent: Pirulo/1.0 (Godot)", "Accept: */*", "Content-Type: application/json;charset=utf-8" };
 
-                var client = ConnectClient(request.uri.host);
-
-                string[] headers = { "User-Agent: Pirulo/1.0 (Godot)", "Accept: */*" };
-
-                var (ok, result) = await RequestWith(client, HTTPClient.Method.Get, request.uri.endpoint, headers);
-
-                request.onResponse?.Invoke(ok, result);
-            }
-            catch (Exception e)
-            {
-                GD.Print(e);
-            }
-            finally
-            {
-                threads.Remove(serial);
-            }
-        }
-
-        public void Post(Uri uri, object body, OnResponse onResponse = null)
-        {
-            StartTask(nameof(PostTask), uri, body, onResponse);
-        }
-
-        private async void PostTask(int serial)
-        {
-            try
-            {
-                var request = PopRequest(serial);
-
-                var client = ConnectClient(request.uri.host);
-
-                string[] headers = { "User-Agent: Pirulo/1.0 (Godot)", "Accept: */*", "Content-Type: application/json;charset=utf-8" };
-
-                var (ok, result) = await RequestWith(client, HTTPClient.Method.Post, request.uri.endpoint, headers, request.body);
-
-                request.onResponse?.Invoke(ok, result);
-            }
-            catch (Exception e)
-            {
-                GD.Print(e);
-            }
-            finally
-            {
-                threads.Remove(serial);
-            }
-        }
-
-        private void StartTask(string method, Uri uri, object body, OnResponse onResponse)
-        {
-            var serial = NewSerial();
-
-            var reservation = new RequestParams
-            {
-                serial = serial,
-                uri = uri,
-                body = body,
-                onResponse = onResponse,
-            };
-
-            mutex.Lock();
-
-            requestParams[serial] = reservation;
-
-            mutex.Unlock();
-
-            var thread = new Thread();
-
-            threads[serial] = thread;
-
-            thread.Start(this, method, serial);
-        }
-
-        public int NewSerial()
-        {
-            return serial++;
-        }
-
-        private RequestParams PopRequest(int serial)
-        {
-            mutex.Lock();
-
-            var request = requestParams[serial];
-
-            var ok = requestParams.Remove(serial);
-
-            if (!ok)
-            {
-                throw new System.Exception("Request missed");
-            }
-
-            mutex.Unlock();
-
-            return request;
+            return await RequestAsyc(client, HTTPClient.Method.Post, uri.endpoint, headers, body);
         }
 
         private static HTTPClient ConnectClient(string host)
@@ -168,7 +61,7 @@ namespace Game
             return client;
         }
 
-        private async Task<(bool, string)> RequestWith(HTTPClient client, HTTPClient.Method method, string endpoint, string[] headers, object body = null)
+        private async Task<(bool, string)> RequestAsyc(HTTPClient client, HTTPClient.Method method, string endpoint, string[] headers, object body = null)
         {
             var json = body != null ? JsonConvert.SerializeObject(body) : "";
 

@@ -2,9 +2,13 @@ namespace Game
 {
     public static class Constant
     {
-        private const string CLOUDFRONT_URI = "https://cdn.eastonline.kr";
+        public const string CLOUDFRONT_URI = "https://cdn.eastonline.kr";
 
-        private const string API_URI = "https://api.eastonline.kr";
+        public const string API_URI = "https://api.eastonline.kr";
+
+        public const string SOCKET_URI = "localhost";
+
+        public const int SOCKET_PORT = 3000;
 
         public static Uri CloudfrontUri(string endpoint)
         {

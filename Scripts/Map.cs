@@ -20,7 +20,7 @@ namespace Game
     {
         public string id;
 
-        public byte rotation;
+        public string rotation;
     }
 
     public struct StaticObject

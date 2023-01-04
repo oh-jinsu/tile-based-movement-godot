@@ -12,7 +12,21 @@ namespace Game
         {
             meshInstance = GetChild<MeshInstance>(0);
 
-            HttpClient.Get(CloudfrontUri("maps/map_0000.yml"), Deserializer.FromYaml<Map, Model.Exception>(OnMapFetched));
+            ThreadPool.Spawn(FetchMap);
+        }
+
+        private async void FetchMap()
+        {
+            var (ok, response) = await HttpClient.GetAsync(CloudfrontUri("maps/map_0000.yml"));
+
+            if (!ok)
+            {
+                return;
+            }
+
+            var model = Deserializer.FromYaml<Map>(response);
+
+            OnMapFetched(model);
         }
 
         private void OnMapFetched(Map map)
