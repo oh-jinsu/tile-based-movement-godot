@@ -6,7 +6,7 @@ namespace Game
 
         public const string API_URI = "https://api.eastonline.kr";
 
-        public const string SOCKET_URI = "localhost";
+        public const string SOCKET_URI = "127.0.0.1";
 
         public const int SOCKET_PORT = 3000;
 

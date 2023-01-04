@@ -1,9 +1,12 @@
 using Godot;
 using System;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
 namespace Game
 {
+    public delegate Task ThreadPoolTask();
+
     public class ThreadPool : BaseNode
     {
         public const string NODE_PATH = "/root/ThreadPool";
@@ -14,9 +17,9 @@ namespace Game
 
         private Dictionary<int, Thread> threads = new();
 
-        private Dictionary<int, Action> tasks = new();
+        private Dictionary<int, ThreadPoolTask> tasks = new();
 
-        public void Spawn(Action task)
+        public void Spawn(ThreadPoolTask task)
         {
             var i = serial++;
 
@@ -33,7 +36,12 @@ namespace Game
             thread.Start(this, nameof(Execute), i);
         }
 
-        private void Execute(int i)
+        public void Spawn(Action task)
+        {
+            Spawn(() => Task.Run(task));
+        }
+
+        private async void Execute(int i)
         {
             try
             {
@@ -48,7 +56,7 @@ namespace Game
                     throw new System.Exception("missing argument");
                 }
 
-                task();
+                await task();
             }
             catch (Exception e)
             {

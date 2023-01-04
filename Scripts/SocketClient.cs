@@ -2,6 +2,7 @@ using Godot;
 
 namespace Game
 {
+    using static GD;
     using static Constant;
 
     public class SocketClient : Singleton
@@ -10,43 +11,27 @@ namespace Game
 
         private StreamPeerTCP stream;
 
-        public void Connect()
+        public override void _Ready()
         {
-            ThreadPool.Spawn(() =>
+            if (stream == null)
             {
-                if (stream == null)
-                {
-                    stream = new StreamPeerTCP();
-                }
+                stream = new StreamPeerTCP();
+            }
 
-                stream.ConnectToHost(SOCKET_URI, SOCKET_PORT);
-            });
+            stream.ConnectToHost(SOCKET_URI, SOCKET_PORT);
 
-        }
-
-        public bool isConnected
-        {
-            get
+            if (stream.IsConnectedToHost())
             {
-                return stream.GetStatus() == StreamPeerTCP.Status.Connected;
+                Print("socket connected");
             }
         }
 
         public void Send(byte[] buffer)
         {
-
-        }
-
-        public void SendTask(byte[] buffer)
-        {
-            if (stream.GetStatus() != StreamPeerTCP.Status.Connected)
+            if (stream?.GetStatus() != StreamPeerTCP.Status.Connected)
             {
                 return;
             }
-
-            ThreadPool.Spawn(() =>
-            {
-            });
         }
     }
 }
