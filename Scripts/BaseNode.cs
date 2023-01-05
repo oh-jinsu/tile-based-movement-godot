@@ -2,11 +2,6 @@ namespace Game
 {
     public class BaseNode : Godot.Node
     {
-        static BaseNode Of(Godot.Node node)
-        {
-            return (BaseNode)node;
-        }
-
         protected Application Application
         {
             get

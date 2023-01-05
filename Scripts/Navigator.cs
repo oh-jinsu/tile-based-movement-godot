@@ -3,6 +3,18 @@ using static Godot.GD;
 
 namespace Game
 {
+    public enum Scene
+    {
+        Splash,
+        Creation,
+        Game,
+    }
+
+    public class GameSceneArguments
+    {
+
+    }
+
     public class Navigator : Singleton
     {
         public const string NODE_PATH = "/root/Navigator";
@@ -17,6 +29,8 @@ namespace Game
             }
         }
 
+        public object Arguments { get; private set; }
+
         public override void _Ready()
         {
             var root = GetTree().Root;
@@ -24,9 +38,21 @@ namespace Game
             currentScene.Value = root.GetChild(root.GetChildCount() - 1);
         }
 
-        public void GoTo(Scene scene)
+        public void GoToSplashScene()
         {
-            CallDeferred(nameof(DeferredGoTo), scene);
+            CallDeferred(nameof(DeferredGoTo), Scene.Splash);
+        }
+
+        public void GoToCreationScene()
+        {
+            CallDeferred(nameof(DeferredGoTo), Scene.Creation);
+        }
+
+        public void GoToGameScene(GameSceneArguments arguments)
+        {
+            Arguments = arguments;
+
+            CallDeferred(nameof(DeferredGoTo), Scene.Game);
         }
 
         private void DeferredGoTo(Scene scene)

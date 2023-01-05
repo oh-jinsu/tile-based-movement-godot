@@ -103,7 +103,7 @@ namespace Game
         {
             Application.AuthRepository.SaveAccessToken(response.token);
 
-            Navigator.GoTo(Scene.Splash);
+            Navigator.GoToSplashScene();
         }
 
         private void OnSaveAuthFailureResponse(Model.Exception exception)
