@@ -18,7 +18,7 @@ namespace Game
 
         private void StartGame()
         {
-            if (SocketClient.Connect())
+            if (!SocketClient.Connect())
             {
                 WindowController.PopupDialog("서버를 연결할 수 없습니다.");
 
@@ -32,9 +32,7 @@ namespace Game
                 token = token,
             };
 
-            var data = hello.Serialize();
-
-            SocketClient.Write(data);
+            SocketClient.Write(hello.Serialize());
 
             // Navigator.GoToGameScene(new GameSceneArguments());
         }
