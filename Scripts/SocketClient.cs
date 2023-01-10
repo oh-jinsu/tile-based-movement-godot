@@ -1,39 +1,96 @@
 using Godot;
 using System;
 
-namespace Game
+namespace Game.Network
 {
     using static Constant;
 
+    public delegate void PacketObserver(Network.Incoming.Packet packet);
+
     public class SocketClient : Singleton
     {
+        private PacketObserver observer;
+
         public const string NODE_PATH = "/root/SocketClient";
+
+        private const int TICK = 500;
 
         private StreamPeerTCP stream;
 
-        public bool Connect()
+        public bool Connect(int timeout = 5000)
         {
-            if (stream == null)
-            {
-                stream = new StreamPeerTCP();
-            }
+            stream ??= new StreamPeerTCP();
 
             stream.ConnectToHost(SOCKET_URI, SOCKET_PORT);
 
-            return stream.IsConnectedToHost();
+            while(timeout > 0) {
+                if (stream.GetStatus() == StreamPeerTCP.Status.Connected) {
+                    GD.Print("socket connected");
+
+                    return true;
+                }
+
+                timeout -= TICK;
+
+                OS.DelayMsec(TICK);
+            }
+
+            return false;
         }
 
-        public bool IsConnectedToHost
+        public override void _Process(float delta)
         {
-            get
-            {
-                return stream?.IsConnectedToHost() == true;
+            if (stream == null) {
+                return;
             }
+
+            if (stream.GetStatus() != StreamPeerTCP.Status.Connected)
+            {
+                return;
+            }
+
+            var length = stream.GetAvailableBytes();
+
+            if (length == 0) {
+                return;
+            }
+
+            var result = stream.GetPartialData(length);
+
+            GD.Print(result);
+
+            if ((Error)result[0] != Error.Ok) {
+                Disconnect();
+
+                return;
+            }
+
+            var bytes = (byte[])result[1];
+
+            var size = BitConverter.ToUInt16(bytes, 0);
+
+            if (size != bytes.Length - 2) {
+                GD.Print("bytes not enough");
+
+                return;
+            } 
+
+            var buffer = new byte[size];
+
+            Buffer.BlockCopy(bytes, 2, buffer, 0, buffer.Length);
+
+            var packet = Network.Incoming.Packet.Deserialize(buffer);
+        
+            observer?.Invoke(packet);
         }
 
         public void Write(byte[] data)
         {
-            if (stream?.GetStatus() != StreamPeerTCP.Status.Connected)
+            if (stream == null) {
+                return;
+            }
+
+            if (stream.GetStatus() != StreamPeerTCP.Status.Connected)
             {
                 return;
             }
@@ -46,7 +103,34 @@ namespace Game
 
             Buffer.BlockCopy(data, 0, buffer, 2, data.Length);
 
-            stream.PutData(buffer);
+            if (stream.PutData(buffer) != Error.Ok) {
+                Disconnect();
+            }
+        }
+
+        public void Subscribe(PacketObserver observer) {
+            this.observer += observer;
+        }
+
+        public void Unsubscribe(PacketObserver observer) {
+            this.observer -= observer;
+        }
+
+        public void Disconnect() {
+            if (stream == null) {
+                return;
+            }
+
+            stream.DisconnectFromHost();
+
+            stream = null;
+
+            GD.Print("socket disconnected");
+        }
+
+        public override void _ExitTree()
+        {
+            Disconnect();
         }
     }
 }

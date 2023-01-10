@@ -1,8 +1,8 @@
 using System;
 
-namespace Game.Packet
+namespace Game.Network.Outgoing
 {
-    public abstract class Outgoing
+    public abstract class Packet
     {
         public abstract int Serial();
 
@@ -24,7 +24,7 @@ namespace Game.Packet
         protected abstract byte[] SerializePayload();
     }
 
-    public class Hello : Outgoing
+    public class Hello : Packet
     {
         public string token;
 

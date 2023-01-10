@@ -5,10 +5,8 @@ using System.Text;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
 
-namespace Game
+namespace Game.Network
 {
-    public abstract class HttpResponse { }
-
     public class HttpClient : Singleton
     {
         public const string NODE_PATH = "/root/HttpClient";

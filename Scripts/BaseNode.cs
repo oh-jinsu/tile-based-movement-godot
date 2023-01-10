@@ -18,19 +18,19 @@ namespace Game
             }
         }
 
-        protected HttpClient HttpClient
+        protected Network.HttpClient HttpClient
         {
             get
             {
-                return GetNode<HttpClient>(HttpClient.NODE_PATH);
+                return GetNode<Network.HttpClient>(Network.HttpClient.NODE_PATH);
             }
         }
 
-        protected SocketClient SocketClient
+        protected Network.SocketClient SocketClient
         {
             get
             {
-                return GetNode<SocketClient>(SocketClient.NODE_PATH);
+                return GetNode<Network.SocketClient>(Network.SocketClient.NODE_PATH);
             }
         }
 

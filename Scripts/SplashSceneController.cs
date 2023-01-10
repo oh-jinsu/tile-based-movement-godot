@@ -1,5 +1,5 @@
 namespace Game
-{
+{   
     public class SplashSceneController : BaseNode
     {
         public override void _Ready()
@@ -18,24 +18,26 @@ namespace Game
 
         private void StartGame()
         {
-            if (!SocketClient.Connect())
-            {
-                WindowController.PopupDialog("서버를 연결할 수 없습니다.");
+            ThreadPool.Spawn(() => {
+                if (!SocketClient.Connect()) {
+                    WindowController.PopupDialog("서버를 연결할 수 없습니다.");
 
-                return;
-            }
+                    return;
+                }
 
-            var token = Application.AuthRepository.GetAccessToken();
+                var token = Application.AuthRepository.GetAccessToken();
 
-            var hello = new Packet.Hello
-            {
-                token = token,
-            };
+                var hello = new Network.Outgoing.Hello
+                {
+                    token = token,
+                };
 
-            SocketClient.Write(hello.Serialize());
+                SocketClient.Write(hello.Serialize());
 
-            // Navigator.GoToGameScene(new GameSceneArguments());
+                // Navigator.GoToGameScene(new GameSceneArguments());
+            });
         }
+
 
         private void Reset()
         {
