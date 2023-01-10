@@ -36,7 +36,7 @@ namespace Game
 
             foreach (var pair in map.tiles)
             {
-                var position = pair.Key;
+                var position = pair.Key + new Vector3(-0.5f, -1f, -0.5f);
 
                 foreach (var face in FACES)
                 {

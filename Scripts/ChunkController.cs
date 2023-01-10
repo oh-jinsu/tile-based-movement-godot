@@ -4,14 +4,10 @@ namespace Game
 {
     using static Constant;
 
-    public class ChunkController : Node
+    public class ChunkController : MeshInstance
     {
-        private MeshInstance meshInstance;
-
         public override void _Ready()
         {
-            meshInstance = GetChild<MeshInstance>(0);
-
             Global.Of(this).ThreadPool.Spawn(FetchMap);
         }
 
@@ -37,7 +33,7 @@ namespace Game
         {
             var mesh = Voxel.CreateMesh(map);
 
-            meshInstance.Mesh = mesh;
+            Mesh = mesh;
         }
     }
 }
