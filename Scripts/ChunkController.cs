@@ -17,7 +17,11 @@ namespace Game
 
         private async void FetchMap()
         {
-            var (ok, response) = await HttpClient.GetAsync(CloudfrontUri("maps/map_0000.yml"));
+            var arguments = Navigator.GetArguments<GameSceneArguments>();
+
+            var mapId = arguments.hello.mapId;
+
+            var (ok, response) = await HttpClient.GetAsync(CloudfrontUri("maps/" + mapId + ".yml"));
 
             if (!ok)
             {

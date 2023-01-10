@@ -57,8 +57,6 @@ namespace Game.Network
 
             var result = stream.GetPartialData(length);
 
-            GD.Print(result);
-
             if ((Error)result[0] != Error.Ok) {
                 Disconnect();
 

@@ -1,9 +1,13 @@
+using Godot;
+
 namespace Game
 {   
     public class SplashSceneController : BaseNode
     {
         public override void _Ready()
         {
+            SocketClient.Subscribe(OnPacketReceived);
+
             var accessToken = Application.AuthRepository.GetAccessToken();
 
             if (accessToken == null)
@@ -33,15 +37,27 @@ namespace Game
                 };
 
                 SocketClient.Write(hello.Serialize());
-
-                // Navigator.GoToGameScene(new GameSceneArguments());
             });
         }
 
+        private void OnPacketReceived(Network.Incoming.Packet packet) {
+            if (packet is Network.Incoming.Hello hello) {
+                var arguments = new GameSceneArguments {
+                    hello = hello,
+                };
+
+                Navigator.GoToGameScene(arguments);
+            }
+        }
 
         private void Reset()
         {
             Application.AuthRepository.DeleteAccessToken();
+        }
+
+        public override void _ExitTree()
+        {
+            SocketClient.Unsubscribe(OnPacketReceived);
         }
     }
 }

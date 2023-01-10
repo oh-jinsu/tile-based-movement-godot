@@ -9,6 +9,8 @@ namespace Game
 
     public class ThreadPool : BaseNode
     {
+        private readonly Queue<int> removeQueue = new();
+
         public const string NODE_PATH = "/root/ThreadPool";
 
         private int serial;
@@ -67,8 +69,6 @@ namespace Game
                 mutex.Lock();
 
                 tasks.Remove(i);
-
-                threads.Remove(i);
 
                 mutex.Unlock();
             }

@@ -3,18 +3,6 @@ using static Godot.GD;
 
 namespace Game
 {
-    public enum Scene
-    {
-        Splash,
-        Creation,
-        Game,
-    }
-
-    public class GameSceneArguments
-    {
-
-    }
-
     public class Navigator : Singleton
     {
         public const string NODE_PATH = "/root/Navigator";
@@ -29,7 +17,11 @@ namespace Game
             }
         }
 
-        public object Arguments { get; private set; }
+        private object arguments;
+
+        public T GetArguments<T>() {
+            return (T)arguments;
+        }
 
         public override void _Ready()
         {
@@ -50,7 +42,7 @@ namespace Game
 
         public void GoToGameScene(GameSceneArguments arguments)
         {
-            Arguments = arguments;
+            this.arguments = arguments;
 
             CallDeferred(nameof(DeferredGoTo), Scene.Game);
         }

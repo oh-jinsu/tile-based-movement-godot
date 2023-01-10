@@ -12,4 +12,5 @@ script = ExtResource( 1 )
 [node name="MeshInstance" type="MeshInstance" parent="Spatial/ChunckController"]
 
 [node name="Camera" type="Camera" parent="Spatial"]
-transform = Transform( -0.707107, 0.5, -0.5, 0, 0.707107, 0.707107, 0.707107, 0.5, -0.5, 0, 10, 0 )
+transform = Transform( 1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 10, 0 )
+fov = 30.0
