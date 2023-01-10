@@ -2,17 +2,27 @@ using Godot;
 
 namespace Game
 {   
-    public class SplashSceneController : BaseNode
+    using Network;
+
+    public class SplashSceneController : Node
     {
+        private Application application;
+
+        private SocketClient socketClient;
+
         public override void _Ready()
         {
-            SocketClient.Subscribe(OnPacketReceived);
+            application = Global.Of(this).Application;
 
-            var accessToken = Application.AuthRepository.GetAccessToken();
+            socketClient = Global.Of(this).SocketClient;
+
+            socketClient.Subscribe(OnPacketReceived);
+
+            var accessToken = application.AuthRepository.GetAccessToken();
 
             if (accessToken == null)
             {
-                Navigator.GoToCreationScene();
+                Global.Of(this).Navigator.GoToCreationScene();
             }
             else
             {
@@ -22,21 +32,21 @@ namespace Game
 
         private void StartGame()
         {
-            ThreadPool.Spawn(() => {
-                if (!SocketClient.Connect()) {
-                    WindowController.PopupDialog("서버를 연결할 수 없습니다.");
+            Global.Of(this).ThreadPool.Spawn(() => {
+                if (!socketClient.Connect()) {
+                    Global.Of(this).WindowController.PopupDialog("서버를 연결할 수 없습니다.");
 
                     return;
                 }
 
-                var token = Application.AuthRepository.GetAccessToken();
+                var token = application.AuthRepository.GetAccessToken();
 
                 var hello = new Network.Outgoing.Hello
                 {
                     token = token,
                 };
 
-                SocketClient.Write(hello.Serialize());
+                socketClient.Write(hello.Serialize());
             });
         }
 
@@ -46,18 +56,18 @@ namespace Game
                     hello = hello,
                 };
 
-                Navigator.GoToGameScene(arguments);
+                Global.Of(this).Navigator.GoToGameScene(arguments);
             }
         }
 
         private void Reset()
         {
-            Application.AuthRepository.DeleteAccessToken();
+            application.AuthRepository.DeleteAccessToken();
         }
 
         public override void _ExitTree()
         {
-            SocketClient.Unsubscribe(OnPacketReceived);
+            socketClient.Unsubscribe(OnPacketReceived);
         }
     }
 }

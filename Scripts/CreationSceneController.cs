@@ -4,7 +4,7 @@ namespace Game
 {
     using static Constant;
 
-    public class CreationSceneController : BaseNode
+    public class CreationSceneController : Node
     {
         private LineEdit lineEdit;
 
@@ -73,7 +73,7 @@ namespace Game
         {
             pending.Value = true;
 
-            ThreadPool.Spawn(SaveAuth);
+            Global.Of(this).ThreadPool.Spawn(SaveAuth);
         }
 
         private async void SaveAuth()
@@ -83,7 +83,7 @@ namespace Game
                 username = username.Value
             };
 
-            var (ok, response) = await HttpClient.PostAsync(ApiUri("auth"), request);
+            var (ok, response) = await Global.Of(this).HttpClient.PostAsync(ApiUri("auth"), request);
 
             if (!ok)
             {
@@ -101,14 +101,14 @@ namespace Game
 
         private void OnSaveAuthSuccessResponse(Model.SaveAuthResponse response)
         {
-            Application.AuthRepository.SaveAccessToken(response.token);
+            Global.Of(this).Application.AuthRepository.SaveAccessToken(response.token);
 
-            Navigator.GoToSplashScene();
+            Global.Of(this).Navigator.GoToSplashScene();
         }
 
         private void OnSaveAuthFailureResponse(Model.Exception exception)
         {
-            WindowController.PopupDialog(exception.message);
+            Global.Of(this).WindowController.PopupDialog(exception.message);
 
             pending.Value = false;
         }

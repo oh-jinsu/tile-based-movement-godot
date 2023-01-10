@@ -2,7 +2,7 @@ using Godot;
 
 namespace Game
 {
-    public class WindowController : Singleton
+    public class WindowController : Node
     {
         public const string NODE_PATH = "/root/WindowController";
 
@@ -10,7 +10,7 @@ namespace Game
 
         public override void _Ready()
         {
-            var node = Navigator.CurrentScene.Subscribe(OnCurrentSceneChange);
+            var node = Global.Of(this).Navigator.CurrentScene.Subscribe(OnCurrentSceneChange);
 
             OnCurrentSceneChange(node);
         }
@@ -33,7 +33,7 @@ namespace Game
 
         public override void _ExitTree()
         {
-            Navigator.CurrentScene.Unsubscribe(OnCurrentSceneChange);
+            Global.Of(this).Navigator.CurrentScene.Unsubscribe(OnCurrentSceneChange);
         }
     }
 }

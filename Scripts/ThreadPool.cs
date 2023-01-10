@@ -7,7 +7,7 @@ namespace Game
 {
     public delegate Task ThreadPoolTask();
 
-    public class ThreadPool : BaseNode
+    public class ThreadPool : Node
     {
         private readonly Queue<int> removeQueue = new();
 

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Game.Network
 {
-    public class HttpClient : Singleton
+    public class HttpClient : Node
     {
         public const string NODE_PATH = "/root/HttpClient";
 

@@ -7,7 +7,7 @@ namespace Game.Network
 
     public delegate void PacketObserver(Network.Incoming.Packet packet);
 
-    public class SocketClient : Singleton
+    public class SocketClient : Node
     {
         private PacketObserver observer;
 

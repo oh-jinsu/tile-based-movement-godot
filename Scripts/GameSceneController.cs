@@ -1,6 +1,8 @@
+using Godot;
+
 namespace Game
 {
-    public class GameSceneController : BaseNode
+    public class GameSceneController : Node
     {
         public override void _Ready()
         {

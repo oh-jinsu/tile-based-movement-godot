@@ -3,7 +3,7 @@ using static Godot.GD;
 
 namespace Game
 {
-    public class Navigator : Singleton
+    public class Navigator : Node
     {
         public const string NODE_PATH = "/root/Navigator";
 
