@@ -38,7 +38,7 @@ namespace Game
 
         private void InitializeAnimationPlayer()
         {
-            animationPlayer = GetNode<AnimationPlayer>("AnimationPlayer");
+            animationPlayer = GetNode<AnimationPlayer>("Model/AnimationPlayer");
 
             var idle = animationPlayer.GetAnimation("idle");
 
@@ -78,7 +78,7 @@ namespace Game
             state.OnPacketArrived(packet);
         }
 
-        public class State : StateMachine<State>.IState
+        public class State : IState
         {
             protected Actor actor;
 
@@ -137,6 +137,8 @@ namespace Game
 
             private long duration;
 
+            private Vector3 distance;
+
             private Vector3 velocity;
 
             public MoveState(Actor machine, Vector3 destination, long duration) : base(machine)
@@ -145,14 +147,23 @@ namespace Game
 
                 this.duration = duration;
 
-                var distance = (destination - actor.GlobalTransform.origin);
+                distance = (destination - actor.GlobalTranslation);
 
                 velocity = 1000 * distance / duration;
             }
 
             public override void OnPush()
             {
+                GD.Print(destination);
+
                 actor.animationPlayer.Play("run");
+
+                actor.LookAt(destination, Vector3.Up);
+            }
+
+            public override void OnPop()
+            {
+                actor.GlobalTranslation = destination;
             }
 
             public override void OnPacketArrived(Packet packet)
@@ -166,7 +177,7 @@ namespace Game
 
                     var state = new MoveState(actor, move.destination, move.duration);
 
-                    actor.machine.Push(state);
+                    actor.machine.Shift(state);
                 }
 
                 if (packet is Network.Incoming.Stop stop)
@@ -186,10 +197,8 @@ namespace Game
             {
                 var deltaVelocity = delta * velocity;
 
-                if ((destination - actor.GlobalTranslation).Abs() <= (deltaVelocity).Abs())
+                if ((destination - actor.GlobalTranslation).Abs() < (deltaVelocity).Abs())
                 {
-                    actor.GlobalTranslation = destination;
-
                     actor.machine.Pop();
 
                     return;

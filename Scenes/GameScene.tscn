@@ -1,19 +1,21 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://Scripts/ChunkController.cs" type="Script" id=1]
 [ext_resource path="res://Scripts/ActorSpawner.cs" type="Script" id=2]
 [ext_resource path="res://Entities/Actor.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Scripts/FollowingCamera.cs" type="Script" id=4]
 [ext_resource path="res://Scripts/InputController.cs" type="Script" id=5]
+[ext_resource path="res://Textures/Joystick.png" type="Texture" id=6]
 
 [node name="Node" type="Node"]
 
 [node name="Spatial" type="Spatial" parent="."]
 
 [node name="Camera" type="Camera" parent="Spatial"]
-transform = Transform( 1, 0, 0, 0, 0.866025, 0.5, 0, -0.5, 0.866025, 0, 10, 0 )
-fov = 30.0
+transform = Transform( -1, 4.37114e-08, -7.57103e-08, 0, 0.866025, 0.5, 8.74228e-08, 0.5, -0.866025, 0, 10, 0 )
+fov = 15.0
 script = ExtResource( 4 )
+distance = 20
 
 [node name="ChunkController" type="MeshInstance" parent="Spatial"]
 skeleton = NodePath("")
@@ -31,5 +33,24 @@ __meta__ = {
 "_edit_group_": true
 }
 
-[node name="InputController" type="Node" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = 32.0
+margin_top = 32.0
+margin_right = -32.0
+margin_bottom = -32.0
+
+[node name="Control" type="Control" parent="MarginContainer"]
+margin_right = 1216.0
+margin_bottom = 656.0
+
+[node name="Control" type="Control" parent="MarginContainer/Control"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_top = -128.0
+margin_right = 128.0
+
+[node name="TouchScreenButton" type="TouchScreenButton" parent="MarginContainer/Control/Control"]
+normal = ExtResource( 6 )
 script = ExtResource( 5 )

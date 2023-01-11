@@ -48,7 +48,7 @@ namespace Game
                     token = token,
                 };
 
-                socketClient.Write(hello.Serialize());
+                socketClient.Write(hello);
             });
         }
 

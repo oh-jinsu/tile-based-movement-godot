@@ -5,7 +5,7 @@ namespace Game
     public class FollowingCamera : Camera
     {
         [Export]
-        private int dinstance = 15;
+        private int distance = 15;
 
         public Spatial Following { private get; set; }
 
@@ -23,13 +23,15 @@ namespace Game
                 return;
             }
 
+            var sign = Mathf.Sign(RotationDegrees.y);
+
             var degree = Mathf.Pi * RotationDegrees.x / 180;
 
-            var y = -1 * dinstance * Mathf.Sin(degree);
+            var y = -1 * distance * Mathf.Sin(degree) * 30 / Fov;
 
-            var x = dinstance * Mathf.Cos(degree);
+            var z = sign * distance * Mathf.Cos(degree) * 30 / Fov;
 
-            GlobalTranslation = Following.GlobalTranslation + new Vector3(0f, y, x);
+            GlobalTranslation = Following.GlobalTranslation + new Vector3(0f, y, z);
         }
     }
 }

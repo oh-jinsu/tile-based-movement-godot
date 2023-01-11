@@ -2,15 +2,15 @@ using System.Collections.Generic;
 
 namespace Game
 {
-    public class StateMachine<T> where T : StateMachine<T>.IState
+    public interface IState
     {
-        public interface IState
-        {
-            void OnPush();
+        void OnPush();
 
-            void OnPop();
-        }
+        void OnPop();
+    }
 
+    public class StateMachine<T> where T : IState
+    {
         private Queue<T> queue = new();
 
         private T currentState;

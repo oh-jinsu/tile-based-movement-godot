@@ -68,28 +68,37 @@ namespace Game.Network
                 return;
             }
 
-            var bytes = (byte[])result[1];
+            var buffer = (byte[])result[1];
 
-            var size = BitConverter.ToUInt16(bytes, 0);
+            int index = 0;
 
-            if (size != bytes.Length - 2)
+            while (index < buffer.Length)
             {
-                GD.Print("bytes not enough");
+                var size = BitConverter.ToUInt16(buffer, index);
 
-                return;
+                if (size > buffer.Length - index - 2)
+                {
+                    GD.Print("bytes not enough " + (buffer.Length - index - 2) + "/" + size);
+
+                    return;
+                }
+
+                var bytes = new byte[size];
+
+                Buffer.BlockCopy(buffer, index + 2, bytes, 0, size);
+
+                var packet = Network.Incoming.Packet.Deserialize(bytes);
+
+                observer?.Invoke(packet);
+
+                index += size + 2;
             }
-
-            var buffer = new byte[size];
-
-            Buffer.BlockCopy(bytes, 2, buffer, 0, buffer.Length);
-
-            var packet = Network.Incoming.Packet.Deserialize(buffer);
-
-            observer?.Invoke(packet);
         }
 
-        public void Write(byte[] data)
+        public void Write(Network.Outgoing.Packet packet)
         {
+            var data = packet.Serialize();
+
             if (stream == null)
             {
                 return;
