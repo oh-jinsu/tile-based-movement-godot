@@ -6,8 +6,6 @@ namespace Game.Network.Incoming
 {
     public abstract class Packet
     {
-        public abstract int Serial();
-
         public static Packet Deserialize(byte[] buffer) {
             var serial = BitConverter.ToUInt16(buffer, 0);
 
@@ -18,6 +16,10 @@ namespace Game.Network.Incoming
             switch (serial) {
                 case 1:
                     return Hello.Deserialize(bytes);
+                case 2:
+                    return Move.Deserialize(bytes);
+                case 3:
+                    return Stop.Deserialize(bytes);
                 default:
                     throw new Exception("Unexpected packet");
             }
@@ -26,29 +28,27 @@ namespace Game.Network.Incoming
 
     public class Hello : Packet
     {
-        public class User {
+        public class Actor {
             public string id;
 
             public Vector3 position;
         }
 
-        public override int Serial() => 1;
+        public string id;
 
         public string mapId;
 
-        public List<User> users;
+        public List<Actor> actors;
 
         public static new Hello Deserialize(byte[] bytes) {
-            var mapIdBuffer = new byte[8];
+            var id = System.Text.Encoding.UTF8.GetString(bytes, 0, 32);
 
-            Buffer.BlockCopy(bytes, 0, mapIdBuffer, 0, 8);
+            var mapId = System.Text.Encoding.UTF8.GetString(bytes, 32, 8);
 
-            var mapId = System.Text.Encoding.UTF8.GetString(mapIdBuffer);
+            var users = new List<Actor>();
 
-            var users = new List<User>();
-
-            for (int i = 8; i < bytes.Length; i += 44) {
-                var id = System.Text.Encoding.UTF8.GetString(bytes, i, 32);
+            for (int i = 40; i < bytes.Length; i += 44) {
+                var actorId = System.Text.Encoding.UTF8.GetString(bytes, i, 32);
 
                 var x = BitConverter.ToInt32(bytes, i + 32);
 
@@ -56,8 +56,8 @@ namespace Game.Network.Incoming
 
                 var z = BitConverter.ToInt32(bytes, i + 40);
 
-                var user = new User {
-                    id = id, 
+                var user = new Actor {
+                    id = actorId, 
                     position = new Vector3(x, y, z),    
                 };
 
@@ -65,8 +65,56 @@ namespace Game.Network.Incoming
             }
 
             return new Hello {
+                id = id,
                 mapId = mapId,
-                users = users,
+                actors = users,
+            };
+        }
+    }
+
+    public class Move : Packet {
+        public string id;
+
+        public Vector3 destination;
+
+        public long duration;
+
+        public static new Move Deserialize(byte[] bytes) {
+            var id = System.Text.Encoding.UTF8.GetString(bytes, 0, 32);
+
+            var x = BitConverter.ToInt32(bytes, 32);
+
+            var y = BitConverter.ToInt32(bytes, 36);
+
+            var z = BitConverter.ToInt32(bytes, 40);
+
+            var duration = BitConverter.ToInt64(bytes, 44);
+
+            return new Move {
+                id = id,
+                destination = new Vector3(x, y, z),
+                duration = duration,
+            };
+        }
+    }
+
+    public class Stop : Packet {
+        public string id;
+
+        public Vector3 position;
+
+        public static new Stop Deserialize(byte[] bytes) {
+            var id = System.Text.Encoding.UTF8.GetString(bytes, 0, 32);
+
+            var x = BitConverter.ToInt32(bytes, 32);
+
+            var y = BitConverter.ToInt32(bytes, 36);
+
+            var z = BitConverter.ToInt32(bytes, 40);
+
+            return new Stop {
+                id = id,
+                position = new Vector3(x, y, z),
             };
         }
     }

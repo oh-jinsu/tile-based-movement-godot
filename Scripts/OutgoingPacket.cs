@@ -4,13 +4,9 @@ namespace Game.Network.Outgoing
 {
     public abstract class Packet
     {
-        public abstract int Serial();
-
         public byte[] Serialize()
         {
-            var serial = BitConverter.GetBytes(Convert.ToUInt16(Serial()));
-
-            var payload = SerializePayload();
+            var (serial, payload) = SerializePayload();
 
             var buffer = new byte[2 + payload.Length];
 
@@ -21,18 +17,25 @@ namespace Game.Network.Outgoing
             return buffer;
         }
 
-        protected abstract byte[] SerializePayload();
+        protected abstract (byte[], byte[]) SerializePayload();
     }
 
     public class Hello : Packet
     {
         public string token;
 
-        public override int Serial() => 1;
-
-        protected override byte[] SerializePayload()
+        protected override (byte[], byte[]) SerializePayload()
         {
-            return System.Text.Encoding.ASCII.GetBytes(token);
+            return (new byte[] { 1, 0 }, System.Text.Encoding.ASCII.GetBytes(token));
+        }
+    }
+
+    public class Move : Packet {
+        public byte direction;
+
+        protected override (byte[], byte[]) SerializePayload()
+        {
+            return (new byte[] { 2, 0 }, new byte[] { direction });
         }
     }
 }
