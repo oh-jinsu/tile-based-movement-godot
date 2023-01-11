@@ -1,8 +1,11 @@
 using System.Collections.Generic;
 
-namespace Game {
-    public class StateMachine<T> where T : StateMachine<T>.IState {
-         public interface IState {
+namespace Game
+{
+    public class StateMachine<T> where T : StateMachine<T>.IState
+    {
+        public interface IState
+        {
             void OnPush();
 
             void OnPop();
@@ -14,23 +17,30 @@ namespace Game {
 
         public T DefaultState;
 
-        public StateMachine(T state) {
+        public StateMachine(T state)
+        {
             DefaultState = state;
         }
 
-        public StateMachine() : this(default(T)) {}
+        public StateMachine() : this(default(T)) { }
 
-        public T CurrentState {
-            get {
-                if (currentState != null) {
+        public T CurrentState
+        {
+            get
+            {
+                if (currentState != null)
+                {
                     return currentState;
                 }
 
-                if (queue.Count > 0) {
+                if (queue.Count > 0)
+                {
                     currentState = queue.Dequeue();
 
                     currentState.OnPush();
-                } else {
+                }
+                else
+                {
                     currentState = DefaultState;
                 }
 
@@ -38,17 +48,20 @@ namespace Game {
             }
         }
 
-        public void Push(T state) {
+        public void Push(T state)
+        {
             queue.Enqueue(state);
         }
 
-        public void Pop() {
+        public void Pop()
+        {
             currentState.OnPop();
-            
+
             currentState = default(T);
         }
 
-        public void Shift(T state) {
+        public void Shift(T state)
+        {
             Push(state);
 
             Pop();

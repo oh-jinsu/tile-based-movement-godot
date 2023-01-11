@@ -30,7 +30,8 @@ namespace Game.Network.Outgoing
         }
     }
 
-    public class Move : Packet {
+    public class Move : Packet
+    {
         public byte direction;
 
         protected override (byte[], byte[]) SerializePayload()

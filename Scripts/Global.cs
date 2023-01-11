@@ -6,9 +6,10 @@ namespace Game
     {
         private Node node;
 
-        private Global() {}
+        private Global() { }
 
-        public static Global Of(Node node) {
+        public static Global Of(Node node)
+        {
             return new Global { node = node };
         }
 

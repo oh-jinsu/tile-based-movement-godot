@@ -1,8 +1,10 @@
 using Game.Network.Incoming;
 using Godot;
 
-namespace Game {
-    public class Actor : Spatial {
+namespace Game
+{
+    public class Actor : Spatial
+    {
         private string id;
 
         private Vector3 initialPosition;
@@ -27,13 +29,15 @@ namespace Game {
             machine.Push(new IdleState(this));
         }
 
-        public void Initialize(string id, Vector3 position) {
+        public void Initialize(string id, Vector3 position)
+        {
             this.id = id;
 
             initialPosition = position;
         }
 
-        private void InitializeAnimationPlayer() {
+        private void InitializeAnimationPlayer()
+        {
             animationPlayer = GetNode<AnimationPlayer>("AnimationPlayer");
 
             var idle = animationPlayer.GetAnimation("idle");
@@ -49,7 +53,8 @@ namespace Game {
         {
             var state = machine.CurrentState;
 
-            if (state == null) {
+            if (state == null)
+            {
                 return;
             }
 
@@ -61,26 +66,33 @@ namespace Game {
             Global.Of(this).SocketClient.Unsubscribe(OnPacketArrived);
         }
 
-        private void OnPacketArrived(Network.Incoming.Packet packet) {
+        private void OnPacketArrived(Network.Incoming.Packet packet)
+        {
             var state = machine.CurrentState;
-         
-            if (state == null) {
+
+            if (state == null)
+            {
                 return;
             }
 
             state.OnPacketArrived(packet);
         }
 
-        public class State : StateMachine<State>.IState {
+        public class State : StateMachine<State>.IState
+        {
             protected Actor actor;
 
-            public State(Actor actor) {
+            public State(Actor actor)
+            {
                 this.actor = actor;
             }
 
-            public virtual void OnPacketArrived(Packet packet) {
-                if (packet is Network.Incoming.Move move) {
-                    if (move.id != actor.id) {
+            public virtual void OnPacketArrived(Packet packet)
+            {
+                if (packet is Network.Incoming.Move move)
+                {
+                    if (move.id != actor.id)
+                    {
                         return;
                     }
 
@@ -89,8 +101,10 @@ namespace Game {
                     actor.machine.Shift(state);
                 }
 
-                 if (packet is Network.Incoming.Stop stop) {
-                    if (stop.id != actor.id) {
+                if (packet is Network.Incoming.Stop stop)
+                {
+                    if (stop.id != actor.id)
+                    {
                         return;
                     }
 
@@ -100,16 +114,16 @@ namespace Game {
                 }
             }
 
-            public virtual void OnPop() {}
+            public virtual void OnPop() { }
 
-            public virtual void OnPush() {}
+            public virtual void OnPush() { }
 
-            public virtual void PhysicsProcess(float delta) {}
+            public virtual void PhysicsProcess(float delta) { }
         }
 
         private class IdleState : State
         {
-            public IdleState(Actor actor) : base(actor) {}
+            public IdleState(Actor actor) : base(actor) { }
 
             public override void OnPush()
             {
@@ -117,14 +131,16 @@ namespace Game {
             }
         }
 
-        private class MoveState : State {
+        private class MoveState : State
+        {
             private Vector3 destination;
 
             private long duration;
 
             private Vector3 velocity;
 
-            public MoveState(Actor machine, Vector3 destination, long duration) : base(machine) {
+            public MoveState(Actor machine, Vector3 destination, long duration) : base(machine)
+            {
                 this.destination = destination;
 
                 this.duration = duration;
@@ -139,19 +155,24 @@ namespace Game {
                 actor.animationPlayer.Play("run");
             }
 
-            public override void OnPacketArrived(Packet packet) {
-                if (packet is Network.Incoming.Move move) {
-                    if (move.id != actor.id) {
+            public override void OnPacketArrived(Packet packet)
+            {
+                if (packet is Network.Incoming.Move move)
+                {
+                    if (move.id != actor.id)
+                    {
                         return;
                     }
 
                     var state = new MoveState(actor, move.destination, move.duration);
-           
+
                     actor.machine.Push(state);
                 }
 
-                if (packet is Network.Incoming.Stop stop) {
-                    if (stop.id != actor.id) {
+                if (packet is Network.Incoming.Stop stop)
+                {
+                    if (stop.id != actor.id)
+                    {
                         return;
                     }
 
@@ -165,7 +186,8 @@ namespace Game {
             {
                 var deltaVelocity = delta * velocity;
 
-                if ((destination - actor.GlobalTranslation).Abs() <= (deltaVelocity).Abs()) {
+                if ((destination - actor.GlobalTranslation).Abs() <= (deltaVelocity).Abs())
+                {
                     actor.GlobalTranslation = destination;
 
                     actor.machine.Pop();

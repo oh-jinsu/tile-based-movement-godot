@@ -1,13 +1,16 @@
 using Godot;
 
-namespace Game {
-    public class FollowingCamera : Camera {
+namespace Game
+{
+    public class FollowingCamera : Camera
+    {
         [Export]
         private int dinstance = 15;
 
         public Spatial Following { private get; set; }
 
-        public void SetFollowing(Spatial node) {
+        public void SetFollowing(Spatial node)
+        {
             Following = node;
         }
 
@@ -15,7 +18,8 @@ namespace Game {
         {
             base._PhysicsProcess(delta);
 
-            if (Following == null) {
+            if (Following == null)
+            {
                 return;
             }
 

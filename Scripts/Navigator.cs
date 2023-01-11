@@ -19,7 +19,8 @@ namespace Game
 
         private object arguments;
 
-        public T GetArguments<T>() {
+        public T GetArguments<T>()
+        {
             return (T)arguments;
         }
 

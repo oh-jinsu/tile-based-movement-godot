@@ -1,4 +1,5 @@
-namespace Game {
+namespace Game
+{
     public enum Scene
     {
         Splash,

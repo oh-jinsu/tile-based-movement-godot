@@ -23,8 +23,10 @@ namespace Game.Network
 
             stream.ConnectToHost(SOCKET_URI, SOCKET_PORT);
 
-            while(timeout > 0) {
-                if (stream.GetStatus() == StreamPeerTCP.Status.Connected) {
+            while (timeout > 0)
+            {
+                if (stream.GetStatus() == StreamPeerTCP.Status.Connected)
+                {
                     GD.Print("socket connected");
 
                     return true;
@@ -40,7 +42,8 @@ namespace Game.Network
 
         public override void _Process(float delta)
         {
-            if (stream == null) {
+            if (stream == null)
+            {
                 return;
             }
 
@@ -51,13 +54,15 @@ namespace Game.Network
 
             var length = stream.GetAvailableBytes();
 
-            if (length == 0) {
+            if (length == 0)
+            {
                 return;
             }
 
             var result = stream.GetPartialData(length);
 
-            if ((Error)result[0] != Error.Ok) {
+            if ((Error)result[0] != Error.Ok)
+            {
                 Disconnect();
 
                 return;
@@ -67,24 +72,26 @@ namespace Game.Network
 
             var size = BitConverter.ToUInt16(bytes, 0);
 
-            if (size != bytes.Length - 2) {
+            if (size != bytes.Length - 2)
+            {
                 GD.Print("bytes not enough");
 
                 return;
-            } 
+            }
 
             var buffer = new byte[size];
 
             Buffer.BlockCopy(bytes, 2, buffer, 0, buffer.Length);
 
             var packet = Network.Incoming.Packet.Deserialize(buffer);
-        
+
             observer?.Invoke(packet);
         }
 
         public void Write(byte[] data)
         {
-            if (stream == null) {
+            if (stream == null)
+            {
                 return;
             }
 
@@ -101,21 +108,26 @@ namespace Game.Network
 
             Buffer.BlockCopy(data, 0, buffer, 2, data.Length);
 
-            if (stream.PutData(buffer) != Error.Ok) {
+            if (stream.PutData(buffer) != Error.Ok)
+            {
                 Disconnect();
             }
         }
 
-        public void Subscribe(PacketObserver observer) {
+        public void Subscribe(PacketObserver observer)
+        {
             this.observer += observer;
         }
 
-        public void Unsubscribe(PacketObserver observer) {
+        public void Unsubscribe(PacketObserver observer)
+        {
             this.observer -= observer;
         }
 
-        public void Disconnect() {
-            if (stream == null) {
+        public void Disconnect()
+        {
+            if (stream == null)
+            {
                 return;
             }
 

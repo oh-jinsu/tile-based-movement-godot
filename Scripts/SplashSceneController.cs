@@ -1,7 +1,7 @@
 using Godot;
 
 namespace Game
-{   
+{
     using Network;
 
     public class SplashSceneController : Node
@@ -32,8 +32,10 @@ namespace Game
 
         private void StartGame()
         {
-            Global.Of(this).ThreadPool.Spawn(() => {
-                if (!socketClient.Connect()) {
+            Global.Of(this).ThreadPool.Spawn(() =>
+            {
+                if (!socketClient.Connect())
+                {
                     Global.Of(this).WindowController.PopupDialog("서버를 연결할 수 없습니다.");
 
                     return;
@@ -50,9 +52,12 @@ namespace Game
             });
         }
 
-        private void OnPacketReceived(Network.Incoming.Packet packet) {
-            if (packet is Network.Incoming.Hello hello) {
-                var arguments = new GameSceneArguments {
+        private void OnPacketReceived(Network.Incoming.Packet packet)
+        {
+            if (packet is Network.Incoming.Hello hello)
+            {
+                var arguments = new GameSceneArguments
+                {
                     hello = hello,
                 };
 
