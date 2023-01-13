@@ -195,7 +195,11 @@ namespace Game
             {
                 var deltaVelocity = delta * velocity;
 
-                if ((destination - actor.GlobalTranslation).Abs() < (deltaVelocity).Abs())
+                var distance = destination.DistanceSquaredTo(actor.GlobalTranslation);
+
+                var squaredVelocity = deltaVelocity.LengthSquared();
+
+                if (distance < squaredVelocity)
                 {
                     actor.machine.Pop();
 
