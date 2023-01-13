@@ -5,14 +5,14 @@ namespace Game
     public static class Voxel
     {
         public static readonly Vector3[] VERTICES = new Vector3[] {
-            new Vector3(0, 0, 0),
-            new Vector3(1, 0, 0),
-            new Vector3(0, 1, 0),
-            new Vector3(1, 1, 0),
-            new Vector3(0, 0, 1),
-            new Vector3(1, 0, 1),
-            new Vector3(0, 1, 1),
-            new Vector3(1, 1, 1),
+            new Vector3(-0.5f, -1, -0.5f),
+            new Vector3(0.5f, -1, -0.5f),
+            new Vector3(-0.5f, 0, -0.5f),
+            new Vector3(0.5f, 0, -0.5f),
+            new Vector3(-0.5f, -1, 0.5f),
+            new Vector3(0.5f, -1, 0.5f),
+            new Vector3(-0.5f, 0, 0.5f),
+            new Vector3(0.5f, 0, 0.5f),
         };
 
         public static readonly int[] TOP = new int[] { 2, 3, 7, 6 };
@@ -36,7 +36,7 @@ namespace Game
 
             foreach (var pair in map.tiles)
             {
-                var position = pair.Key + new Vector3(-0.5f, -1f, -0.5f);
+                var position = pair.Key;
 
                 foreach (var face in FACES)
                 {

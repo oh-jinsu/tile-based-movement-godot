@@ -38,6 +38,10 @@ namespace Game
                 var camera = GetNode<FollowingCamera>("../Camera");
 
                 camera.Following = instance;
+
+                var moveController = GetNode<MoveController>("../MoveController");
+
+                moveController.Initialize(instance);
             }
         }
     }

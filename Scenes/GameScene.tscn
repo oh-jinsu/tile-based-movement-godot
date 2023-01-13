@@ -1,11 +1,10 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://Scripts/ChunkController.cs" type="Script" id=1]
 [ext_resource path="res://Scripts/ActorSpawner.cs" type="Script" id=2]
 [ext_resource path="res://Entities/Actor.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Scripts/FollowingCamera.cs" type="Script" id=4]
-[ext_resource path="res://Scripts/InputController.cs" type="Script" id=5]
-[ext_resource path="res://Textures/Joystick.png" type="Texture" id=6]
+[ext_resource path="res://Scripts/MoveController.cs" type="Script" id=5]
 
 [node name="Node" type="Node"]
 
@@ -33,6 +32,9 @@ __meta__ = {
 "_edit_group_": true
 }
 
+[node name="MoveController" type="Node" parent="Spatial"]
+script = ExtResource( 5 )
+
 [node name="MarginContainer" type="MarginContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -40,17 +42,3 @@ margin_left = 32.0
 margin_top = 32.0
 margin_right = -32.0
 margin_bottom = -32.0
-
-[node name="Control" type="Control" parent="MarginContainer"]
-margin_right = 1216.0
-margin_bottom = 656.0
-
-[node name="Control" type="Control" parent="MarginContainer/Control"]
-anchor_top = 1.0
-anchor_bottom = 1.0
-margin_top = -128.0
-margin_right = 128.0
-
-[node name="TouchScreenButton" type="TouchScreenButton" parent="MarginContainer/Control/Control"]
-normal = ExtResource( 6 )
-script = ExtResource( 5 )

@@ -154,8 +154,6 @@ namespace Game
 
             public override void OnPush()
             {
-                GD.Print(destination);
-
                 actor.animationPlayer.Play("run");
 
                 actor.LookAt(destination, Vector3.Up);
