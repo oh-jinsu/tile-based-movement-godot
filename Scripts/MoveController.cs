@@ -9,11 +9,13 @@ namespace Game
 
         private ChunkController chunkController;
 
-        private Spatial player;
+        private Actor actor;
 
         private Network.SocketClient socketClient;
 
         private Queue<Vector3> pathQueue = new();
+
+        private Vector3 currentPosition;
 
         public override void _Ready()
         {
@@ -26,9 +28,11 @@ namespace Game
             socketClient.Subscribe(OnPacketArrived);
         }
 
-        public void Initialize(Spatial player)
+        public void Initialize(Actor actor)
         {
-            this.player = player;
+            this.actor = actor;
+
+            this.currentPosition = Vector3.Zero;
         }
 
         private void RequestMove(byte direction)
@@ -43,19 +47,17 @@ namespace Game
 
         public override void _Input(InputEvent @event)
         {
-            if (@event is InputEventScreenTouch screenTouch)
+            if (@event.IsPressed())
             {
-                MoveTo(screenTouch.Position);
-
                 return;
             }
 
-            if (@event is InputEventScreenDrag screenDrag)
-            {
-                MoveTo(screenDrag.Position);
+            // if (@event is InputEventScreenTouch screenTouch)
+            // {
+            //     MoveTo(screenTouch.Position);
 
-                return;
-            }
+            //     return;
+            // }
 
             if (@event is InputEventMouseButton mouse)
             {
@@ -67,7 +69,7 @@ namespace Game
 
         public void MoveTo(Vector2 screenPosition)
         {
-            if (player == null)
+            if (actor == null)
             {
                 return;
             }
@@ -87,7 +89,9 @@ namespace Game
 
             var point = ((Vector3)intersection["position"]);
 
-            var paths = chunkController.Getpaths(player.GlobalTranslation, point);
+            var position = currentPosition;
+
+            var paths = chunkController.Getpaths(position, point);
 
             if (paths.Length < 2)
             {
@@ -100,7 +104,7 @@ namespace Game
             {
                 if (i == 1)
                 {
-                    var vector = player.GlobalTranslation.DirectionTo(paths[i]);
+                    var vector = position.DirectionTo(paths[i]);
 
                     var direction = GetByteFromVector(vector);
 
@@ -117,6 +121,8 @@ namespace Game
         {
             if (packet is Network.Incoming.Move move)
             {
+                currentPosition = move.destination;
+
                 if (pathQueue.Count == 0)
                 {
                     RequestMove(0);
@@ -126,7 +132,7 @@ namespace Game
 
                 var path = pathQueue.Dequeue();
 
-                var vector = player.GlobalTranslation.DirectionTo(path);
+                var vector = move.destination.DirectionTo(path);
 
                 var direction = GetByteFromVector(vector);
 
