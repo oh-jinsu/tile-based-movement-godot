@@ -17,6 +17,12 @@ namespace Game
 
         private Vector3 currentPosition;
 
+        private MeshInstance marker;
+
+        private Mesh mesh;
+
+        private Material material = GD.Load("res://Materials/PalleteMaterial.tres") as Material;
+
         public override void _Ready()
         {
             camera = GetNode<Camera>("../Camera");
@@ -26,6 +32,34 @@ namespace Game
             socketClient = Global.Of(this).SocketClient;
 
             socketClient.Subscribe(OnPacketArrived);
+
+            mesh = Marker.CreateMesh(material);
+        }
+
+        private void PinMarker(Vector3 position)
+        {
+            if (marker == null)
+            {
+                CreateMarker();
+            }
+
+            marker.GlobalTranslation = position;
+        }
+
+        private void CreateMarker()
+        {
+            marker = new MeshInstance();
+
+            marker.Mesh = mesh;
+
+            AddChild(marker);
+        }
+
+        private void RemoveMarker()
+        {
+            marker.QueueFree();
+
+            marker = null;
         }
 
         public void Initialize(Actor actor)
@@ -113,6 +147,11 @@ namespace Game
                     continue;
                 }
 
+                if (i == paths.Length - 1)
+                {
+                    PinMarker(paths[i]);
+                }
+
                 pathQueue.Enqueue(paths[i]);
             }
         }
@@ -126,6 +165,8 @@ namespace Game
                 if (pathQueue.Count == 0)
                 {
                     RequestMove(0);
+
+                    RemoveMarker();
 
                     return;
                 }
